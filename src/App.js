@@ -11,9 +11,8 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import AddIcon from "@material-ui/icons/Add";
-import ListIcon from "@material-ui/icons/List";
+import ListIcon from "@material-ui/icons/PhotoAlbum";
 import { auth, db } from "./firebase";
-import { Todo } from "./Components/Todo";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -21,13 +20,14 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { TextField } from "@material-ui/core";
 import { Route } from "react-router";
+import Photos from "./Components/photos";
 
 export function App(props) {
   const [drawer, setDrawer] = useState(false);
   const [user, setUser] = useState(null);
   const [dialog, setDialog] = useState(false);
   const [value, setValue] = useState("");
-  const [lists, setLists] = useState([]);
+  const [albums, seAlbums] = useState(["Dogs", "Cats", "Houses"]);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(u => {
@@ -39,24 +39,6 @@ export function App(props) {
     });
     return unsubscribe;
   }, [props.history, user]);
-
-  useEffect(() => {
-    let unsubscribe;
-    if (user) {
-      unsubscribe = db
-        .collection("users")
-        .doc(user.uid)
-        .collection("Lists")
-        .onSnapshot(snapshot => {
-          const Lists = [];
-          snapshot.forEach(doc => {
-            Lists.push(doc.data().name);
-          });
-          setLists(Lists);
-        });
-    }
-    return unsubscribe;
-  }, [user]);
 
   const handleSignOut = () => {
     auth
@@ -107,15 +89,12 @@ export function App(props) {
           </Button>
         </Toolbar>
       </AppBar>
-      <Route
-        path={"/app/:list_name"}
-        render={routeProps => <Todo user={user} {...routeProps} />}
-      />
+      <Photos />
 
       <Drawer open={drawer} onClose={() => setDrawer(false)}>
         <div>
           <List>
-            {lists.map(list => (
+            {albums.map(list => (
               <ListItem
                 button
                 onClick={() => {
@@ -139,28 +118,11 @@ export function App(props) {
               <ListItemIcon>
                 <AddIcon />
               </ListItemIcon>
-              <ListItemText primary={"Add List"} />
+              <ListItemText primary={"Add Album"} />
             </ListItem>
           </List>
         </div>
       </Drawer>
-      <Dialog open={dialog} onClose={() => setDialog(false)}>
-        <DialogTitle>New List</DialogTitle>
-        <DialogContent style={{ width: 500 }}>
-          <TextField
-            autoFocus
-            fullWidth
-            label="New List"
-            value={value}
-            onChange={e => setValue(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button color="primary" onClick={handleAddList}>
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
     </div>
   );
 }

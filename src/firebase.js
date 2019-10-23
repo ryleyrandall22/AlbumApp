@@ -3,13 +3,13 @@ import "firebase/auth";
 import "firebase/firestore";
 
 const config = {
-  apiKey: "AIzaSyC7ts6lcSNKz6N5BhgHT1-EMHQPuTEzpDE",
-  authDomain: "ryley-project.firebaseapp.com",
-  databaseURL: "https://ryley-project.firebaseio.com",
-  projectId: "ryley-project",
-  storageBucket: "",
-  messagingSenderId: "795497705569",
-  appId: "1:795497705569:web:a06091297ab952b3"
+  apiKey: "AIzaSyBc-Y-IT7q9WMATlUt6rvQLb7xUa_zkPOg",
+  authDomain: "albumapp-ryley.firebaseapp.com",
+  databaseURL: "https://albumapp-ryley.firebaseio.com",
+  projectId: "albumapp-ryley",
+  storageBucket: "albumapp-ryley.appspot.com",
+  messagingSenderId: "1016256340304",
+  appId: "1:1016256340304:web:0919746a6bab878dc50c55"
 };
 
 firebase.initializeApp(config);

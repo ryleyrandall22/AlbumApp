@@ -83,7 +83,7 @@ export function Login(props) {
             <img
               src={Reactlogo}
               alt={"React Logo"}
-              style={{ width: "25%", height: "auto" }}
+              style={{ width: "33%", height: "auto" }}
             />
             <Typography
               style={{ width: "100%", textAlign: "center" }}

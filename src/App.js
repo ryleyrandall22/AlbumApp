@@ -19,15 +19,39 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { TextField } from "@material-ui/core";
-import { Route } from "react-router";
+import { Link, Route } from "react-router";
 import Photos from "./Components/photos";
+import AddAlbum from "./Components/addalbum";
 
 export function App(props) {
   const [drawer, setDrawer] = useState(false);
   const [user, setUser] = useState(null);
   const [dialog, setDialog] = useState(false);
   const [value, setValue] = useState("");
-  const [albums, seAlbums] = useState(["Dogs", "Cats", "Houses"]);
+  const [albums, setAlbums] = useState([
+    { text: "Trees", id: 0 },
+    { text: "Sunsets", id: 1 },
+    { text: "Dogs", id: 2 }
+  ]);
+
+  useEffect(() => {
+    let unsubscribe;
+    if (user) {
+      unsubscribe = db
+        .collection("users")
+        .doc(user.uid)
+        .collection("albums")
+        .onSnapshot(snapshot => {
+          const newAlbums = [];
+          snapshot.forEach(doc => {
+            newAlbums.push({ title: doc.data().title, id: doc.id });
+          });
+          setAlbums(newAlbums);
+        });
+    }
+
+    return unsubscribe;
+  }, [user]);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(u => {
@@ -43,9 +67,7 @@ export function App(props) {
   const handleSignOut = () => {
     auth
       .signOut()
-      .then(() => {
-        console.log("User was Signed Out");
-      })
+      .then(() => {})
       .catch(err => {
         console.log(err);
       });
@@ -54,16 +76,6 @@ export function App(props) {
   if (!user) {
     return <div />;
   }
-
-  const handleAddList = () => {
-    db.collection("users")
-      .doc(user.uid)
-      .collection("Lists")
-      .add({ name: value });
-    setDialog(false);
-    setValue("");
-    props.history.push("/app/" + encodeURI(value) + "/");
-  };
 
   return (
     <div>
@@ -89,25 +101,36 @@ export function App(props) {
           </Button>
         </Toolbar>
       </AppBar>
-      <Photos />
+
+      <Route
+        path="/app/album/:album_id/"
+        render={props => {
+          return <Photos {...props} user={user} />;
+        }}
+      />
 
       <Drawer open={drawer} onClose={() => setDrawer(false)}>
         <div>
-          <List>
-            {albums.map(list => (
-              <ListItem
-                button
-                onClick={() => {
-                  props.history.push("/app/" + encodeURI(list) + "/");
-                  setDrawer(false);
-                }}
-              >
-                <ListItemIcon>
-                  <ListIcon />
-                </ListItemIcon>
-                <ListItemText primary={list} />
-              </ListItem>
-            ))}
+          <List component="nav">
+            {albums.map(x => {
+              return (
+                <div key={x.id}>
+                  <ListItem
+                    button
+                    onClick={() => {
+                      setDrawer(false);
+                      props.history.push("/app/album/" + x.id + "/");
+                    }}
+                  >
+                    <ListItemIcon>
+                      <ListIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={x.title} />
+                  </ListItem>
+                </div>
+              );
+            })}
+
             <ListItem
               button
               onClick={() => {
@@ -123,6 +146,7 @@ export function App(props) {
           </List>
         </div>
       </Drawer>
+      <AddAlbum open={dialog} onClose={setDialog} user={user} />
     </div>
   );
 }
